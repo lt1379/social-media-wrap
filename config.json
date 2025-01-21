@@ -16,14 +16,14 @@
             "host": "localhost",
             "port": "5432",
             "user": "project",
-            "password": "MyPassword_123"
+            "password": "[password]"
         },
         "mysql": {
             "name": "my_project",
             "host": "localhost",
             "port": "3306",
             "user": "project",
-            "password": "MyPassword_123"
+            "password": "[password]"
         }
     },
     "tulusTech": {
@@ -31,7 +31,7 @@
             "contentType": "application/json"
         },
         "host": "https://tulus.fun",
-        "token": "aBH20WFbfJRNr0oji4n6mE7fWfebd8mVYxfjpc1y"
+        "token": "[token]"
     },
     "data": {
         "source": "googlesheet"
@@ -40,11 +40,11 @@
         "projectID": "sonic-charmer-337916"
     },
     "serviceBus": {
-        "namespace": "Endpoint=sb://gra-sb-gateway.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=3k7vB9LCiVW5zWtpyJoGHmLTy4SrLPsk6+ASbNdCwpU="
+        "namespace": "Endpoint=sb://gra-sb-gateway.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=[SharedAccessKey]"
     },
     "redisClient": {
         "username": "default",
-        "password": "fpMXvxaTGiYmCsAbBxcnAhcGApSpKN0E",
+        "password": "[password]",
         "host": "redis-18200.c56.east-us.azure.redns.redis-cloud.com",
         "port": "18200",
         "databaseName": "cache-M4LG2M2D"

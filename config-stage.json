@@ -28,9 +28,9 @@
         "mongodb": {
             "name": "my_project",
             "host": "localhost",
-            "user": "lamboksimamora",
-            "password": "jh3phXNg43i5Zkjt",
-            "url": "mongodb+srv://lamboksimamora:jh3phXNg43i5Zkjt@cluster0.vz5ln.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+            "user": "useradmin",
+            "password": "password",
+            "url": "mongodb+srv://useradmin:password@cluster0.vz5ln.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
         }
     },
     "tulusTech": {

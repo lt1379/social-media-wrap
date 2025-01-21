@@ -9,17 +9,15 @@ import (
 )
 
 type Config struct {
-	Database         Database         `json:"database"`
-	TulusTech        TulusTech        `json:"tulusTech"`
-	Openapi          Openapi          `json:"openapi"`
-	App              App              `json:"app"`
-	GoogleSheet      GoogleSheet      `json:"googleSheet"`
-	Data             Data             `json:"data"`
-	Pubsub           Pubsub           `json:"pubsub"`
-	ServiceBus       ServiceBus       `json:"serviceBus"`
-	RedisClient      RedisClient      `json:"redisClient"`
-	Logger           Logger           `json:"logger"`
-	ControlroomProxy ControlroomProxy `json:"controlroomProxy"`
+	Database    Database    `json:"database"`
+	TulusTech   TulusTech   `json:"tulusTech"`
+	App         App         `json:"app"`
+	GoogleSheet GoogleSheet `json:"googleSheet"`
+	Data        Data        `json:"data"`
+	Pubsub      Pubsub      `json:"pubsub"`
+	ServiceBus  ServiceBus  `json:"serviceBus"`
+	RedisClient RedisClient `json:"redisClient"`
+	Logger      Logger      `json:"logger"`
 }
 
 type App struct {
@@ -28,10 +26,8 @@ type App struct {
 }
 
 type Database struct {
-	Openapi     OpenapiDb     `json:"openapi"`
-	Controlroom ControlroomDb `json:"controlroom"`
-	Psql        Db            `json:"psql"`
-	MySql       Db            `json:"mysql"`
+	Psql  Db `json:"psql"`
+	MySql Db `json:"mysql"`
 }
 
 type GoogleSheet struct {
@@ -49,38 +45,10 @@ type Db struct {
 	User     string `json:"user"`
 	Password string `json:"password"`
 }
-type OpenapiDb struct {
-	Name     string `json:"string"`
-	Host     string `json:"host"`
-	Port     string `json:"port"`
-	User     string `json:"user"`
-	Password string `json:"password"`
-}
-
-type ControlroomDb struct {
-	Name     string `json:"string"`
-	Host     string `json:"host"`
-	Port     string `json:"port"`
-	User     string `json:"user"`
-	Password string `json:"password"`
-}
 
 type TulusTech struct {
 	Header Header `json:"header"`
 	Host   string `json:"host"`
-}
-
-type Openapi struct {
-	ExcludeProducts   string `json:"excludeProducts"`
-	MaxTimeFail       int64  `json:"maxTimeFail"`
-	ExcludeCategories string `json:"excludeCategories"`
-	ClientId          string `json:"clientId"`
-	SecretKey         string `json:"secretKey"`
-	Host              string `json:"host"`
-}
-
-type ControlroomProxy struct {
-	Host string `json:"host"`
 }
 
 type Data struct {
