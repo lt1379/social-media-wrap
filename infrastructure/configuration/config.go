@@ -28,6 +28,7 @@ type App struct {
 type Database struct {
 	Psql  Db `json:"psql"`
 	MySql Db `json:"mysql"`
+	Mongo Db `json:"mongo"`
 }
 
 type GoogleSheet struct {

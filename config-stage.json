@@ -1,6 +1,6 @@
 {
     "app": {
-        "port": "10001",
+        "port": "10002",
         "secretKey": "secret"
     },
     "googleSheet": {
@@ -25,11 +25,12 @@
             "user": "project",
             "password": "MyPassword_123"
         },
-        "mongodb": {
+        "mongo": {
             "name": "my_project",
             "host": "localhost",
-            "user": "useradmin",
-            "password": "password",
+            "user": "project",
+            "password": "MyPassword_123",
+            "port": "27017",
             "url": "mongodb+srv://useradmin:password@cluster0.vz5ln.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
         }
     },
@@ -54,7 +55,7 @@
         "password": "fpMXvxaTGiYmCsAbBxcnAhcGApSpKN0E",
         "host": "redis-18200.c56.east-us.azure.redns.redis-cloud.com",
         "port": "18200",
-        "databaseName": "cache-M4LG2M2D"
+        "databaseName": 1
     },
     "logger": {
         "format": "2006-02-01"

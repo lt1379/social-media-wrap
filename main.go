@@ -33,7 +33,7 @@ func recoverPanic() {
 }
 
 func main() {
-	InitiateGoroutine()
+	//InitiateGoroutine()
 	defer recoverPanic()
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
@@ -54,6 +54,18 @@ func main() {
 		panic(err)
 	}
 
+	mongoDb, err := persistence.NewMongoDb(configuration.C.Database.Mongo.Host, configuration.C.Database.Mongo.Port, configuration.C.Database.Mongo.User, configuration.C.Database.Mongo.Password, configuration.C.Database.Mongo.Name)
+	if err != nil {
+		logger.GetLogger().WithField("error", err).Error("Error while instantiate MongoDB")
+		panic(err)
+	}
+	err = mongoDb.Ping(ctx, nil)
+	if err != nil {
+		logger.GetLogger().WithField("error", err).Error("Error while Ping MongoDB")
+		panic(err)
+	}
+	fmt.Println("MongoDB connected")
+
 	logger.GetLogger().WithField("MySQLDb", mysqlDb.Ping()).WithField("PSQLDb", psqlDb.Ping()).Info("Database connected.")
 
 	pubSubClient, err := pubsub.NewPubSub(ctx, configuration.C.Pubsub.ProjectID)
@@ -69,6 +81,12 @@ func main() {
 	}
 	redisClient, _ := cache.NewCache(ctx, fmt.Sprintf("%s:%s", configuration.C.RedisClient.Host, configuration.C.RedisClient.Port), configuration.C.RedisClient.Username, configuration.C.RedisClient.Password)
 
+	testRepository := persistence.NewTestRepository(mongoDb)
+	project, err := testRepository.Test(ctx)
+	if err != nil {
+		logger.GetLogger().WithField("error", err).Error("Error while fetching data")
+	}
+	fmt.Printf("Project %v\n", project)
 	testCache := cache.NewTestCache(redisClient)
 
 	logger.GetLogger().Info("Redis client initialized successfully.")
@@ -81,8 +99,8 @@ func main() {
 	userRepository := persistence.NewUserRepository(psqlDb)
 	userUsecase := usecase.NewUserUsecase(userRepository)
 	testUsecase := usecase.NewTestUsecase(tulusTechHost, testPubSub, testServiceBus, testCache)
-	testRes := testUsecase.Test(ctx)
-	fmt.Println("Test response", testRes)
+	//testRes := testUsecase.Test(ctx)
+	//fmt.Println("Test response", testRes)
 
 	userHandler := httpHandler.NewUserHandler(userUsecase)
 	testHandler := httpHandler.NewTestHandler(testUsecase)

@@ -1,11 +1,13 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Project struct {
-	Id          int
-	Name        string
-	Description string
-	CreatedAt   time.Time `gorm:"autoCreateTime;index"`
-	UpdateAt    time.Time `gorm:"autoUpdateTime;index"`
+	Id          int       `json:"id" bson:"id"`
+	Name        string    `bson:"name"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `gorm:"autoCreateTime;index" bson:"createdAt"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime;index" bson:"updatedAt"`
 }
