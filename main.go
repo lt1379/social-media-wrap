@@ -51,7 +51,7 @@ func main() {
 
 	mysqlDb, psqlDb, err := InitiateDatabase()
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	mongoDb, err := persistence.NewMongoDb(configuration.C.Database.Mongo.Host, configuration.C.Database.Mongo.Port, configuration.C.Database.Mongo.User, configuration.C.Database.Mongo.Password, configuration.C.Database.Mongo.Name)
