@@ -11,6 +11,7 @@ import (
 	"my-project/infrastructure/persistence"
 	"my-project/infrastructure/pubsub"
 	"my-project/infrastructure/servicebus"
+	youtube_client "my-project/infrastructure/youtubeclient"
 	httpHandler "my-project/interfaces/http"
 	"my-project/usecase"
 	"net/http"
@@ -48,6 +49,17 @@ func main() {
 	// configuration.LoadConfig()
 
 	app := configuration.C.App
+
+	youtubeClient, err := youtube_client.NewYoutubeClient()
+	if err != nil {
+		logger.GetLogger().WithField("error", err).Error("Error while instantiate YoutubeClient")
+		panic(err)
+	}
+	testYoutubeClient := youtube_client.NewTestYoutubeClient(youtubeClient)
+	if err != nil {
+		logger.GetLogger().WithField("error", err).Error("Error while instantiate YoutubeClient")
+		panic(err)
+	}
 
 	mysqlDb, psqlDb, err := InitiateDatabase()
 	if err != nil {
@@ -98,9 +110,9 @@ func main() {
 
 	userRepository := persistence.NewUserRepository(psqlDb)
 	userUsecase := usecase.NewUserUsecase(userRepository)
-	testUsecase := usecase.NewTestUsecase(tulusTechHost, testPubSub, testServiceBus, testCache)
-	//testRes := testUsecase.Test(ctx)
-	//fmt.Println("Test response", testRes)
+	testUsecase := usecase.NewTestUsecase(tulusTechHost, testPubSub, testServiceBus, testCache, testYoutubeClient)
+	testRes := testUsecase.Test(ctx)
+	fmt.Println("Test response", testRes)
 
 	userHandler := httpHandler.NewUserHandler(userUsecase)
 	testHandler := httpHandler.NewTestHandler(testUsecase)

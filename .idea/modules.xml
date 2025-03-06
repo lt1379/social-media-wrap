@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/go-project.iml" filepath="$PROJECT_DIR$/.idea/go-project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/social-media-wrap.iml" filepath="$PROJECT_DIR$/.idea/social-media-wrap.iml" />
     </modules>
   </component>
 </project>

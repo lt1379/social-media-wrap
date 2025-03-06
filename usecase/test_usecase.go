@@ -10,6 +10,7 @@ import (
 	"my-project/infrastructure/logger"
 	"my-project/infrastructure/pubsub"
 	"my-project/infrastructure/servicebus"
+	youtube_client "my-project/infrastructure/youtubeclient"
 )
 
 type ITestUsecase interface {
@@ -17,18 +18,19 @@ type ITestUsecase interface {
 }
 
 type TestUsecase struct {
-	TulusTechHost  tulushost.ITulusHost
-	TestPubSub     pubsub.ITestPubSub
-	TestServiceBus servicebus.ITestServiceBus
-	TestCache      cache.ITestCache
+	TulusTechHost     tulushost.ITulusHost
+	TestPubSub        pubsub.ITestPubSub
+	TestServiceBus    servicebus.ITestServiceBus
+	TestCache         cache.ITestCache
+	TestYoutubeClient youtube_client.ITestYoutubeClient
 }
 
 type ITulusHost interface {
 	GetRandomTyping(ctx context.Context, reqHeader models.ReqHeader) (string, error)
 }
 
-func NewTestUsecase(tulusTechHost tulushost.ITulusHost, testPubSub pubsub.ITestPubSub, testServiceBus servicebus.ITestServiceBus, testCache cache.ITestCache) ITestUsecase {
-	return &TestUsecase{TulusTechHost: tulusTechHost, TestPubSub: testPubSub, TestServiceBus: testServiceBus, TestCache: testCache}
+func NewTestUsecase(tulusTechHost tulushost.ITulusHost, testPubSub pubsub.ITestPubSub, testServiceBus servicebus.ITestServiceBus, testCache cache.ITestCache, testYoutubeClient youtube_client.ITestYoutubeClient) ITestUsecase {
+	return &TestUsecase{TulusTechHost: tulusTechHost, TestPubSub: testPubSub, TestServiceBus: testServiceBus, TestCache: testCache, TestYoutubeClient: testYoutubeClient}
 }
 
 func (testUsecase *TestUsecase) Test(ctx context.Context) dto.TestDto {
@@ -36,6 +38,8 @@ func (testUsecase *TestUsecase) Test(ctx context.Context) dto.TestDto {
 
 	res.PubSub = "Not OK"
 	res.ServiceBus = "Not OK"
+
+	testUsecase.TestYoutubeClient.ChannelsListByUsername([]string{"snippet", "contentDetails", "statistics"}, "GoogleDevelopers")
 
 	msg := "Hello"
 	byteMsg, err := json.Marshal(msg)
