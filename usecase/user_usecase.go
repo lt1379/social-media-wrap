@@ -41,7 +41,7 @@ func (userUsecase *UserUsecase) Login(ctx context.Context, req model.ReqLogin) d
 	if md5Req != user.Password {
 		logger.GetLogger().WithField("request_password", md5Req).Error("Password not matching")
 		res.ResponseCode = "401"
-		res.ResponseMessage = "Unautorized."
+		res.ResponseMessage = "Unauthorized."
 		return res
 	}
 
@@ -70,7 +70,7 @@ func (userUsecase *UserUsecase) Login(ctx context.Context, req model.ReqLogin) d
 	return res
 }
 
-func (userUcase *UserUsecase) Register(ctx context.Context, req model.ReqRegister) dto.ResRegister {
+func (userUsecase *UserUsecase) Register(ctx context.Context, req model.ReqRegister) dto.ResRegister {
 	var res dto.ResRegister
 
 	reqUser := model.User{
@@ -78,7 +78,7 @@ func (userUcase *UserUsecase) Register(ctx context.Context, req model.ReqRegiste
 		UserName: req.UserName,
 		Password: req.Password,
 	}
-	err := userUcase.userRepository.CreateUser(ctx, reqUser)
+	err := userUsecase.userRepository.CreateUser(ctx, reqUser)
 	if err != nil {
 		res.Data = nil
 		res.ResponseCode = "500"

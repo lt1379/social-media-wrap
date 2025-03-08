@@ -111,13 +111,15 @@ func main() {
 	userRepository := persistence.NewUserRepository(psqlDb)
 	userUsecase := usecase.NewUserUsecase(userRepository)
 	testUsecase := usecase.NewTestUsecase(tulusTechHost, testPubSub, testServiceBus, testCache, testYoutubeClient)
-	testRes := testUsecase.Test(ctx)
-	fmt.Println("Test response", testRes)
+	//testRes := testUsecase.Test(ctx)
+	//fmt.Println("Test response", testRes)
+	videoUsecase := usecase.NewVideoUsecase(youtubeClient)
 
 	userHandler := httpHandler.NewUserHandler(userUsecase)
 	testHandler := httpHandler.NewTestHandler(testUsecase)
+	videoHandler := httpHandler.NewVideoHandler(videoUsecase)
 
-	router := InitiateRouter(userHandler, testHandler, userRepository)
+	router := InitiateRouter(userHandler, testHandler, userRepository, videoHandler)
 
 	if err != nil {
 		logger.GetLogger().WithField("error", err).Error("Error while StartSubscription")

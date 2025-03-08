@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func InitiateRouter(userHandler httpHandler.IUserHandler, testHandler httpHandler.ITestHandler, userRepository repository.IUser) *gin.Engine {
+func InitiateRouter(userHandler httpHandler.IUserHandler, testHandler httpHandler.ITestHandler, userRepository repository.IUser, videoHandler httpHandler.IVideoHandler) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Recovery())
 	router.Use(cors.New(cors.Config{
@@ -38,6 +38,7 @@ func InitiateRouter(userHandler httpHandler.IUserHandler, testHandler httpHandle
 		res := ctx.Request.Body
 		ctx.JSON(http.StatusOK, res)
 	})
+	api.POST("/videos", videoHandler.GetVideos)
 
 	return router
 }

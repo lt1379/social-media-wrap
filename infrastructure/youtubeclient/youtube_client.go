@@ -115,7 +115,17 @@ func channelsListByUsername(service *youtube.Service, part []string, forUsername
 		response.Items[0].Snippet.Title,
 		response.Items[0].Statistics.ViewCount))
 }
-
+func channelsListByHandle(service *youtube.Service, part []string, forHandle string) {
+	call := service.Channels.List(part)
+	call = call.ForHandle(forHandle)
+	response, err := call.Do()
+	handleError(err, "")
+	fmt.Println(fmt.Sprintf("This channel's ID is %s. Its title is '%s', "+
+		"and it has %d views.",
+		response.Items[0].Id,
+		response.Items[0].Snippet.Title,
+		response.Items[0].Statistics.ViewCount))
+}
 func NewYoutubeClient() (*youtube.Service, error) {
 	ctx := context.Background()
 
@@ -137,6 +147,9 @@ func NewYoutubeClient() (*youtube.Service, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// channelsListByUsername(service, []string{"snippet", "contentDetails", "statistics"}, "Kasih-MuTuhan")
+	channelsListByHandle(service, []string{"snippet", "contentDetails", "statistics"}, "Kasih-MuTuhan")
 
 	return service, nil
 }

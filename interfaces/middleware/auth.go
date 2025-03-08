@@ -6,8 +6,8 @@ import (
 	"my-project/domain/dto"
 	"my-project/domain/model"
 	"my-project/domain/repository"
+	"my-project/infrastructure/configuration"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -18,13 +18,12 @@ func Auth(userRepository repository.IUser) gin.HandlerFunc {
 
 	var res dto.Res
 	res.ResponseCode = "401"
-	res.ResponseMessage = "Unautorized"
+	res.ResponseMessage = "Unauthorized"
 
-	log.Println("Inside auth middeware")
+	log.Println("Inside auth middleware")
 	return func(ctx *gin.Context) {
-
 		authorization := ctx.Request.Header.Get("Authorization")
-		secretKey := os.Getenv("SECRET_KEY")
+		secretKey := configuration.C.App.SecretKey
 		if authorization == "" {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
 			return
