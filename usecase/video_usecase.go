@@ -38,8 +38,8 @@ var (
 )
 
 // Retrieve playlistItems in the specified playlist
-func (VideoUsecase *VideoUsecase) playlistItemsList(part []string, playlistId string, pageToken string) *youtube.PlaylistItemListResponse {
-	call := VideoUsecase.YoutubeService.PlaylistItems.List(part)
+func (videoUsecase *VideoUsecase) playlistItemsList(part []string, playlistId string, pageToken string) *youtube.PlaylistItemListResponse {
+	call := videoUsecase.YoutubeService.PlaylistItems.List(part)
 	call = call.PlaylistId(playlistId)
 	if pageToken != "" {
 		call = call.PageToken(pageToken)
@@ -52,8 +52,8 @@ func (VideoUsecase *VideoUsecase) playlistItemsList(part []string, playlistId st
 }
 
 // Retrieve resource for the authenticated user's channel
-func (VideoUsecase *VideoUsecase) channelsListMine(part []string) *youtube.ChannelListResponse {
-	call := VideoUsecase.YoutubeService.Channels.List(part)
+func (videoUsecase *VideoUsecase) channelsListMine(part []string) *youtube.ChannelListResponse {
+	call := videoUsecase.YoutubeService.Channels.List(part)
 	call = call.Mine(true)
 	response, err := call.Do()
 	if err != nil {
@@ -62,8 +62,8 @@ func (VideoUsecase *VideoUsecase) channelsListMine(part []string) *youtube.Chann
 	return response
 }
 
-func (VideoUsecase *VideoUsecase) playlistsList(part []string, channelId string, hl string, maxResults int64, mine bool, onBehalfOfContentOwner string, pageToken string) *youtube.PlaylistListResponse {
-	call := VideoUsecase.YoutubeService.Playlists.List(part)
+func (videoUsecase *VideoUsecase) playlistsList(part []string, channelId string, hl string, maxResults int64, mine bool, onBehalfOfContentOwner string, pageToken string) *youtube.PlaylistListResponse {
+	call := videoUsecase.YoutubeService.Playlists.List(part)
 	if channelId != "" {
 		call = call.ChannelId(channelId)
 	}
@@ -80,8 +80,8 @@ func (VideoUsecase *VideoUsecase) playlistsList(part []string, channelId string,
 	if pageToken != "" {
 		call = call.PageToken(pageToken)
 	}
-	if VideoUsecase.playlistId != "" {
-		call = call.Id(VideoUsecase.playlistId)
+	if videoUsecase.playlistId != "" {
+		call = call.Id(videoUsecase.playlistId)
 	}
 	response, err := call.Do()
 	handleError(err, "")
