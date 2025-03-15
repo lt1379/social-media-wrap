@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"google.golang.org/api/youtube/v3"
 	"my-project/domain/model"
+	"my-project/domain/repository"
 	"my-project/infrastructure/logger"
+	"time"
 )
 
 type IVideoUsecase interface {
@@ -13,11 +15,13 @@ type IVideoUsecase interface {
 }
 
 type VideoUsecase struct {
-	YoutubeService *youtube.Service
+	YoutubeService  *youtube.Service
+	VideoRepository repository.IVideo
+	playlistId      string
 }
 
-func NewVideoUsecase(service *youtube.Service) IVideoUsecase {
-	return &VideoUsecase{YoutubeService: service}
+func NewVideoUsecase(service *youtube.Service, videoRepository repository.IVideo) IVideoUsecase {
+	return &VideoUsecase{YoutubeService: service, VideoRepository: videoRepository}
 }
 
 var (
@@ -34,8 +38,8 @@ var (
 )
 
 // Retrieve playlistItems in the specified playlist
-func playlistItemsList(service *youtube.Service, part []string, playlistId string, pageToken string) *youtube.PlaylistItemListResponse {
-	call := service.PlaylistItems.List(part)
+func (VideoUsecase *VideoUsecase) playlistItemsList(part []string, playlistId string, pageToken string) *youtube.PlaylistItemListResponse {
+	call := VideoUsecase.YoutubeService.PlaylistItems.List(part)
 	call = call.PlaylistId(playlistId)
 	if pageToken != "" {
 		call = call.PageToken(pageToken)
@@ -48,8 +52,8 @@ func playlistItemsList(service *youtube.Service, part []string, playlistId strin
 }
 
 // Retrieve resource for the authenticated user's channel
-func channelsListMine(service *youtube.Service, part []string) *youtube.ChannelListResponse {
-	call := service.Channels.List(part)
+func (VideoUsecase *VideoUsecase) channelsListMine(part []string) *youtube.ChannelListResponse {
+	call := VideoUsecase.YoutubeService.Channels.List(part)
 	call = call.Mine(true)
 	response, err := call.Do()
 	if err != nil {
@@ -58,8 +62,8 @@ func channelsListMine(service *youtube.Service, part []string) *youtube.ChannelL
 	return response
 }
 
-func playlistsList(service *youtube.Service, part []string, channelId string, hl string, maxResults int64, mine bool, onBehalfOfContentOwner string, pageToken string, playlistId string) *youtube.PlaylistListResponse {
-	call := service.Playlists.List(part)
+func (VideoUsecase *VideoUsecase) playlistsList(part []string, channelId string, hl string, maxResults int64, mine bool, onBehalfOfContentOwner string, pageToken string) *youtube.PlaylistListResponse {
+	call := VideoUsecase.YoutubeService.Playlists.List(part)
 	if channelId != "" {
 		call = call.ChannelId(channelId)
 	}
@@ -76,8 +80,8 @@ func playlistsList(service *youtube.Service, part []string, channelId string, hl
 	if pageToken != "" {
 		call = call.PageToken(pageToken)
 	}
-	if playlistId != "" {
-		call = call.Id(playlistId)
+	if VideoUsecase.playlistId != "" {
+		call = call.Id(VideoUsecase.playlistId)
 	}
 	response, err := call.Do()
 	handleError(err, "")
@@ -93,7 +97,8 @@ func handleError(err error, message string) {
 	}
 }
 func (videoUsecase *VideoUsecase) GetVideos() ([]model.Video, error) {
-	response := channelsListMine(videoUsecase.YoutubeService, []string{"contentDetails"})
+	response := videoUsecase.channelsListMine([]string{"contentDetails"})
+	var videos []model.Video
 
 	for _, channel := range response.Items {
 		playlistId := channel.ContentDetails.RelatedPlaylists.Uploads
@@ -104,13 +109,9 @@ func (videoUsecase *VideoUsecase) GetVideos() ([]model.Video, error) {
 		nextPageToken := ""
 		for {
 			// Retrieve next set of items in the playlist.
-			playlistResponse := playlistItemsList(videoUsecase.YoutubeService, []string{"snippet"}, playlistId, nextPageToken)
+			playlistResponse := videoUsecase.playlistItemsList([]string{"snippet"}, playlistId, nextPageToken)
 
-			for _, playlistItem := range playlistResponse.Items {
-				title := playlistItem.Snippet.Title
-				videoId := playlistItem.Snippet.ResourceId.VideoId
-				fmt.Printf("%v, (%v)\r\n", title, videoId)
-			}
+			savePlaylistResponse(videoUsecase, playlistResponse, &videos)
 
 			// Set the token to retrieve the next page of results
 			// or exit the loop if all results have been retrieved.
@@ -121,5 +122,49 @@ func (videoUsecase *VideoUsecase) GetVideos() ([]model.Video, error) {
 			fmt.Println()
 		}
 	}
-	return []model.Video{}, nil
+	return videos, nil
+}
+
+func savePlaylistResponse(videoUsecase *VideoUsecase, playlistResponse *youtube.PlaylistItemListResponse, videos *[]model.Video) {
+	for _, playlistItem := range playlistResponse.Items {
+		title := playlistItem.Snippet.Title
+		videoId := playlistItem.Snippet.ResourceId.VideoId
+		fmt.Printf("%v, (%v)\r\n", title, videoId)
+
+		// Insert video to database
+		video := model.Video{
+			YoutubeVideoID:         videoId,
+			CreatedAt:              time.Now(),
+			UpdatedAt:              time.Now(),
+			CreatedBy:              1,
+			UpdatedBy:              1,
+			YoutubeTitle:           title,
+			YoutubeDescription:     playlistItem.Snippet.Description,
+			YoutubePlaylist:        playlistItem.Snippet.PlaylistId,
+			YoutubeChannelID:       playlistItem.Snippet.ChannelId,
+			YoutubeChannelUsername: playlistItem.Snippet.ChannelTitle,
+		}
+
+		if playlistItem.Status != nil {
+			video.YoutubePrivacyStatus = playlistItem.Status.PrivacyStatus
+		}
+		result, err := videoUsecase.VideoRepository.GetVideoByVideoID(videoId)
+		if err != nil {
+			logger.GetLogger().WithField("error", err).Error("Error while getting video by video id")
+		}
+		if result != nil {
+			err = videoUsecase.VideoRepository.InsertVideo(result)
+			if err != nil {
+				logger.GetLogger().WithField("error", err).Error("Error while inserting video")
+			}
+			*videos = append(*videos, *result)
+			continue
+		}
+
+		err = videoUsecase.VideoRepository.InsertVideo(&video)
+		if err != nil {
+			logger.GetLogger().WithField("error", err).Error("Error while inserting video")
+		}
+		*videos = append(*videos, video)
+	}
 }

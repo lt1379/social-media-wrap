@@ -66,6 +66,8 @@ func main() {
 		fmt.Println(err)
 	}
 
+	psqlGormDb := persistence.NewPsqlGormDb()
+
 	mongoDb, err := persistence.NewMongoDb(configuration.C.Database.Mongo.Host, configuration.C.Database.Mongo.Port, configuration.C.Database.Mongo.User, configuration.C.Database.Mongo.Password, configuration.C.Database.Mongo.Name)
 	if err != nil {
 		logger.GetLogger().WithField("error", err).Error("Error while instantiate MongoDB")
@@ -108,12 +110,13 @@ func main() {
 	testPubSub := pubsub.NewTestPubSub(pubSubClient)
 	testServiceBus := servicebus.NewTestServiceBus(azServiceBusClient)
 
+	videoRepository := persistence.NewVideoRepository(psqlGormDb)
 	userRepository := persistence.NewUserRepository(psqlDb)
 	userUsecase := usecase.NewUserUsecase(userRepository)
 	testUsecase := usecase.NewTestUsecase(tulusTechHost, testPubSub, testServiceBus, testCache, testYoutubeClient)
 	//testRes := testUsecase.Test(ctx)
 	//fmt.Println("Test response", testRes)
-	videoUsecase := usecase.NewVideoUsecase(youtubeClient)
+	videoUsecase := usecase.NewVideoUsecase(youtubeClient, videoRepository)
 
 	userHandler := httpHandler.NewUserHandler(userUsecase)
 	testHandler := httpHandler.NewTestHandler(testUsecase)
