@@ -67,6 +67,7 @@ func main() {
 	}
 
 	psqlGormDb := persistence.NewPsqlGormDb()
+	sqliteGormDB := persistence.NewSqliteDb()
 
 	mongoDb, err := persistence.NewMongoDb(configuration.C.Database.Mongo.Host, configuration.C.Database.Mongo.Port, configuration.C.Database.Mongo.User, configuration.C.Database.Mongo.Password, configuration.C.Database.Mongo.Name)
 	if err != nil {
@@ -111,6 +112,7 @@ func main() {
 	testServiceBus := servicebus.NewTestServiceBus(azServiceBusClient)
 
 	videoRepository := persistence.NewVideoRepository(psqlGormDb)
+	_ = persistence.NewVideoSqliteRepository(sqliteGormDB)
 	userRepository := persistence.NewUserRepository(psqlDb)
 	userUsecase := usecase.NewUserUsecase(userRepository)
 	testUsecase := usecase.NewTestUsecase(tulusTechHost, testPubSub, testServiceBus, testCache, testYoutubeClient)
